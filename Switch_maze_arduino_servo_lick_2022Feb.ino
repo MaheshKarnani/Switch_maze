@@ -293,19 +293,6 @@ void loop()
         delay(slowness); 
     }
 
-    if (pos5_current<pos5_target) //SERVO 5
-    {
-        pos5_current=pos5_current+1;
-        servo5.write(pos5_current);     
-        delay(slowness); 
-    }
-    if (pos5_current>pos5_target)
-    {
-        pos5_current=pos5_current-1;
-        servo5.write(pos5_current);     
-        delay(slowness); 
-    }
-
     //target commands
     //SERVO 1
     if ((digitalRead(pi_ard_1) == HIGH)) 
@@ -342,14 +329,5 @@ void loop()
     else 
     {
         pos4_target=BRAKE_WHEEL;
-    }
-    //SERVO 5
-    if ((digitalRead(pi_ard_5p) == HIGH)) 
-    {
-        pos5_target=HIDE_FOOD;
-    }
-    else 
-    {
-        pos5_target=HIDE_FOOD;
     }
 }//void loop end
