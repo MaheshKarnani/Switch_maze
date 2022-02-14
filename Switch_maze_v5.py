@@ -12,7 +12,7 @@ from datetime import datetime
 import numpy as np
 
 #recording parameters
-animal_list = ["38723977393" ,"38723977500", "38723977309"] #list of tags in the recording (use scan tags code first to find out who they are)
+animal_list = ["38723977393","38723977500", "38723977309"] #list of tags in the recording (use scan tags code first to find out who they are)
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
 run_time = 120 # running wheel availability in seconds 120s standard
 chuck_lines=2 # chuck first weight reads for stability
@@ -134,9 +134,9 @@ food_clk_end = 0
 food_clk_start = 0
 run_clk_start = 0
 #animal timers 
+animal_timer = animal_list.copy()
 for x in range(np.size(animal_list)):
-    animaltag=animal_list[x]
-    animal_timer(animaltag)=time.time()-100
+    animal_timer[x]=int(round(time.time()))-100
 
 #mode timers
 mode1timer=int(round(time.time())) #why?
@@ -365,7 +365,7 @@ while True:
                 print("animal not in list")
                 print(animaltag)
                 break   
-            if secs-animal_timer(animaltag)<nest_timeout: #check functionality!
+            if secs-animal_timer[animal_list.index(animaltag)]<nest_timeout: #check functionality!
                 MODE = 1
                 break
             else:
@@ -445,7 +445,7 @@ while True:
         another_entered=False
         choice_flag=False
         entry_flag = False
-        animal_timer(animaltag)=time.time()
+        animal_timer[animal_list.index(animaltag)]=int(round(time.time()))
         time.sleep(exit_wait)#safety timer so outgoing is not trapped on exit
         MODE = 1
     #enter food pod    
