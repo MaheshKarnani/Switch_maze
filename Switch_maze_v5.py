@@ -12,13 +12,15 @@ from datetime import datetime
 import numpy as np
 
 #recording parameters
-animal_list = ["38723977393","38723977500", "38723977309"] #list of tags in the recording (use scan tags code first to find out who they are)
+#start_time = datetime.datetime.now()+datetime.timedelta(minutes=10)
+animal_list = ["2006010137","141821018180"] #list of tags in the recording (use scan tags code first to find out who they are)
+#animal_list = ["202100030","137575399426", "2006010085"]#test sticks x and y
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
 run_time = 120 # running wheel availability in seconds 120s standard
 chuck_lines=2 # chuck first weight reads for stability
 nest_timeout=100 # timeout in nest after exiting maze in seconds 100s standard
 heavy=40 # heavy (more than one mouse) limit in g, 40g standard
-exit_wait=5#safety timer in seconds so outgoing is not trapped on exit, decrease when they learn to use
+exit_wait=6#safety timer in seconds so outgoing is not trapped on exit, decrease when they learn to use
 #which side run wheel and drink spout
 def wheel_side(wheel):
     if wheel == "Left":
@@ -74,9 +76,9 @@ ard_pi_5 = 38 # reports BB5high
 ard_pi_lick = 32 # reports Capacitive lick sensor
 
 # set pins to and from FED3
-Food_retrieval = 11 # BNC output FED3
-GPIO.setup(Food_retrieval, GPIO.IN)
-give_pellet = 10 #trigger FED3
+Food_retrieval = 10 # BNC output FED3, was 11 3V 
+GPIO.setup(Food_retrieval, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+give_pellet = 23 #trigger FED3
 GPIO.setup(give_pellet, GPIO.OUT)
 
 # pin to water valve
@@ -99,6 +101,7 @@ pi_ard_3 = 16 #open door3
 pi_ard_4ow = 5 #open wheel
 Pi_capture_1  =40 #start miniscope
 PiArd_reset = 18 #reset arduino
+pi_ard_calibrate_lick = 24 #recalibrate capacitive lick sensor
 
 GPIO.setup(pi_ard_1,GPIO.OUT)
 GPIO.setup(pi_ard_2,GPIO.OUT)
@@ -106,14 +109,16 @@ GPIO.setup(pi_ard_3,GPIO.OUT)
 GPIO.setup(pi_ard_4ow,GPIO.OUT)
 GPIO.setup(Pi_capture_1,GPIO.OUT)
 GPIO.setup(PiArd_reset,GPIO.OUT)
+GPIO.setup(pi_ard_calibrate_lick,GPIO.OUT)
 GPIO.output(pi_ard_1,False)
 GPIO.output(pi_ard_2,False)
 GPIO.output(pi_ard_3,False)
 GPIO.output(pi_ard_4ow,False)
 GPIO.output(Pi_capture_1,False)
-GPIO.output(PiArd_reset,False)#why?
+GPIO.output(pi_ard_calibrate_lick,False)
+GPIO.output(PiArd_reset,False)#?
 time.sleep(0.1)
-GPIO.output(PiArd_reset,True)#why?
+GPIO.output(PiArd_reset,True)#?
 
 #initialize state variables
 MODE=1
@@ -235,10 +240,10 @@ def read_scale():
     ser.flush()
     for x in range(chuck_lines): # chuck lines 
         line=ser.readline()
-    for x in range(3): # 3 lines*120ms per line=0.4s of data 
+    for x in range(2): # 2 lines*120ms per line=0.3s of data 
         line=ser.readline()
-        if x % 1 == 0:
-            print(line)
+#         if x % 1 == 0:
+#             print(line)
         line_as_list = line.split(b',')
         relProb = line_as_list[0]
         relProb_as_list = relProb.split(b'\n')
@@ -342,12 +347,12 @@ while True:
         print("\nMODE 2\n")
         w=read_scale()
         if w>10 and w<heavy and GPIO.input(ard_pi_5):
-            GPIO.output(pi_ard_1,False) # close door1
             print("\nMODE 2 confirming sem occupancy\n")
-            time.sleep(1)
+            time.sleep(0.2)
             w=read_scale()
             if w>10 and w<heavy: #one animal
                 print(datetime.now())
+                print("one animal")
                 MODE = 3
             else:
                 MODE = 1
@@ -360,19 +365,26 @@ while True:
         print("Reading animal tag")
         while True:
             animaltag = RFID_readtag("RFID1")
+            w=read_scale()
             if not animaltag in animal_list:
                 MODE = 1
                 print("animal not in list")
                 print(animaltag)
                 break   
-            if secs-animal_timer[animal_list.index(animaltag)]<nest_timeout: #check functionality!
+            elif secs-animal_timer[animal_list.index(animaltag)]<nest_timeout: #check functionality!
+                GPIO.output(pi_ard_1,True) # open door1
+                time.sleep(exit_wait)#safety timer so outgoing is not trapped on exit 
                 MODE = 1
                 break
-            else:
+            elif w>10 and w<heavy and GPIO.input(ard_pi_5):
+                GPIO.output(pi_ard_1,False) # close door1
                 MODE = 4
                 choice_flag=False
                 water_flag=True
-                break                       
+                break
+            else:
+                break
+                print("something wrong with new mode3")
 
     #correct animal on scale
     if MODE == 4:
@@ -411,12 +423,12 @@ while True:
             save.append_event("*", "", "BB2", animaltag, wheel_position, FED_position)
         # append food data
         if food_flag:
-            print("appending food pod data")
+#             print("appending food pod data")
             cycles_str = round(counter/cycle,4)
             save.append_event(cycles_str, "", "Food_log_BB2", animaltag, wheel_position, FED_position)
         # append run data
         if run_flag:
-            print("appending running wheel data, licks:")
+#             print("appending running wheel data, licks:")
             print(licks)
             cycles_str = round(counter/cycle,4)
             save.append_event(cycles_str, "", "Run_log_BB2", animaltag, wheel_position, FED_position)
@@ -447,10 +459,14 @@ while True:
         entry_flag = False
         animal_timer[animal_list.index(animaltag)]=int(round(time.time()))
         time.sleep(exit_wait)#safety timer so outgoing is not trapped on exit
+        GPIO.output(pi_ard_calibrate_lick,True)
+        time.sleep(0.5)
+        GPIO.output(pi_ard_calibrate_lick,False)
+        time.sleep(0.1)
         MODE = 1
     #enter food pod    
     if MODE == 5 and GPIO.input(ard_pi_4) and choice_flag: 
-        print("\nfood pod\n")
+        print("\nenter food\n")
         GPIO.output(give_pellet,False) # signal back low so you can trigger next one
         GPIO.output(pi_ard_3,False) # close door 3
         save.append_event("*", "", "BB4", animaltag, wheel_position, FED_position)
@@ -460,7 +476,7 @@ while True:
         limit=cycle         
     #enter running wheel pod
     if MODE == 5 and GPIO.input(ard_pi_3) and choice_flag: 
-        print("\nrunning wheel\n")
+        print("\nenter water\n")
         GPIO.output(pi_ard_4ow,True) # open running wheel
         GPIO.output(pi_ard_3,False) # close door 3
         save.append_event("*", "", "BB3", animaltag, wheel_position, FED_position)
@@ -477,7 +493,7 @@ while True:
         if GPIO.input(Food_retrieval) and pellet_complete_flag:
             food_clk_end = round(time.process_time() - food_clk_start, 4)
             pellet_complete_flag=False
-            print("Appending food retrieval") 
+            print("EAT") 
             save.append_event("", food_clk_end, "Food_retrieval", animaltag, wheel_position, FED_position) 
     #record running wheel and licking   
     if run_flag:
@@ -500,4 +516,5 @@ while True:
                 time.sleep(water_time)
                 GPIO.output(give_water,False) 
                 lick_flag=False
+                print("DRINK") 
 print("loop end")
