@@ -12,16 +12,16 @@ import datetime
 import numpy as np
 
 #recording parameters
-start_time = datetime.datetime.now()+datetime.timedelta(minutes=10)
-stop_time = datetime.datetime(2022,2,22,9,30)#input stop time date, hour, minute
-animal_list = ["2006010137","141821018180"] #list of tags in the recording (use scan tags code first to find out who they are)
+start_time = datetime.datetime.now()+datetime.timedelta(minutes=5)
+stop_time = datetime.datetime(2022,3,10,9,30)#input stop time date, hour, minute
+animal_list = ["2006010137","141821018163","141821018138","141821018308"] #list of tags in the recording (use scan tags code first to find out who they are),FD"141821018180"
 #animal_list = ["202100030","137575399426", "2006010085"]#test sticks x and y
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
 run_time = 120 # running wheel availability in seconds 120s standard
 chuck_lines=2 # chuck first weight reads for stability
 nest_timeout=100 # timeout in nest after exiting maze in seconds 100s standard
 heavy=40 # heavy (more than one mouse) limit in g, 40g standard
-exit_wait=6#safety timer in seconds so outgoing is not trapped on exit, decrease when they learn to use
+exit_wait=1#safety timer in seconds so outgoing is not trapped on exit, decrease when they learn to use
 #which side run wheel and drink spout
 def wheel_side(wheel):
     if wheel == "Left":
@@ -48,7 +48,7 @@ GPIO.setwarnings(False) # Ignore warning for now
 serRFID = serial.Serial()
 serRFID.port = '/dev/ttyUSB2' 
 serRFID.baudrate = 9600
-serRFID.timeout = 100 #specify timeout when using readline()
+serRFID.timeout = 100 # timeout in seconds when using readline()
 serRFID.open()
 if serRFID.is_open==True:
     print("\nRFID antenna ok. Configuration:\n")
@@ -59,7 +59,7 @@ serRFID.close()
 ser = serial.Serial()
 ser.port = '/dev/ttyUSB1' 
 ser.baudrate = 19200
-ser.timeout = 100000
+ser.timeout = 100
 #specify timeout when using readline()
 ser.open()
 ser.flush()
@@ -114,7 +114,7 @@ GPIO.setup(pi_ard_calibrate_lick,GPIO.OUT)
 GPIO.output(pi_ard_1,False)
 GPIO.output(pi_ard_2,False)
 GPIO.output(pi_ard_3,False)
-GPIO.output(pi_ard_4ow,False)
+GPIO.output(pi_ard_4ow,True) # open running wheel
 GPIO.output(Pi_capture_1,False)
 GPIO.output(pi_ard_calibrate_lick,False)
 GPIO.output(PiArd_reset,False)#?
@@ -142,7 +142,7 @@ run_clk_start = 0
 #animal timers 
 animal_timer = animal_list.copy()
 for x in range(np.size(animal_list)):
-    animal_timer[x]=int(round(time.time()))-100
+    animal_timer[x]=int(round(time.time()))-nest_timeout
 
 '''
 begin loop function defs
@@ -168,7 +168,8 @@ def RFID_readtag(RFIDnum):
             return animaltag
         except:
             serRFID.close()
-            print("Something went wrong")
+            #print("+", end=",")
+            #print("Something went wrong")
             animaltag = False
             return animaltag
 
@@ -266,7 +267,7 @@ class SaveData:
         weight_list.update({'Weight_Median': [weight_data_median]})
         weight_list.update({'Weight_Mode': [weight_data_mode]})
         weight_list.update({'Weight_Max_Mode': [weight_data_max_mode]})
-        weight_list.update({'Date_Time': [datetime.now()]})
+        weight_list.update({'Date_Time': [datetime.datetime.now()]})
         df_w = pd.DataFrame(weight_list)
         print(df_w)
         if not os.path.isfile(animaltag + "_weight.csv"):
@@ -293,7 +294,7 @@ class SaveData:
         event_list.update({'Rotation': [rotation]})
         event_list.update({'Pellet_Retrieval': [food_time]})
         event_list.update({'Type': [event_type]})
-        event_list.update({'Date_Time': [datetime.now()]})
+        event_list.update({'Date_Time': [datetime.datetime.now()]})
         event_list.update({'Wheel_Position': [wheel_position]})
         event_list.update({'FED_Position': [FED_position]})
         df_e = pd.DataFrame(event_list)
@@ -323,16 +324,16 @@ GPIO.setup(ard_pi_4,GPIO.IN)
 GPIO.setup(ard_pi_5,GPIO.IN)
 GPIO.setup(ard_pi_lick,GPIO.IN,GPIO.PUD_DOWN)
 
-#start when start_time is passed
-while datetime.datetime.now()<start_time:
-    res=input("press nothing for 10min timer OR 0 and enter for immediate start")
-    try:
-        res = int(res)
-    except:
-        pass
-    if res==0:
-        break
-    
+#start when start_time is passed or immediately
+res=input("press 1 and enter for Xmin timer OR 0 and enter for immediate start")
+res = int(res)
+if res==1:
+    while datetime.datetime.now()<start_time:
+        dummy=1
+elif res==0:
+    dummy=0
+
+#save session parameters
 for x in range(np.size(animal_list)):
     animaltag=animal_list[x]
     save.append_event(run_time, water_time, "begin session", animaltag, wheel_position, FED_position)
@@ -342,44 +343,50 @@ begin execution loop
 while True:
     #start
     if MODE == 1:
-        if datetime.datetime.now()<stop_time:
-            MODE = 2:
-            print(datetime.datetime.now())
-            print("STOPPED MAZE because stop_time was reached")
-            break
         print("\n MODE 1 open start \n")
         GPIO.output(pi_ard_1,True) # open door1
         MODE = 3
+        print("\nMODE 3\n")
+        print("Scanning RFID tag in scale")
+        print(datetime.datetime.now())
     if MODE == 2:
         #stop mode
         w=read_scale()
         if w<10 and GPIO.input(ard_pi_5):
             GPIO.output(pi_ard_1,False) # close door1
             time.sleep(60)
+            print("stopped")
+        elif w<10:
+            time.sleep(600) # scan every 10min for safety
         elif w>10:
             GPIO.output(pi_ard_1,True) # open door1
             time.sleep(10)
     #animal on scale
     if MODE == 3:
-        print("\nMODE 3\n")
-        print("Scanning RFID tag in scale")
         while True:
             animaltag = RFID_readtag("RFID1")
-            w=read_scale()
-            if not animaltag in animal_list:
-                MODE = 3
-                print("animal not in list")
-                print(animaltag)
-                break   
-            elif w>10 and w<heavy and GPIO.input(ard_pi_5):
-                GPIO.output(pi_ard_1,False) # close door1
-                MODE = 4
-                choice_flag=False
-                water_flag=True
+            if datetime.datetime.now()>stop_time:
+                MODE = 2
+                print(datetime.datetime.now())
+                print("STOPPING MAZE because stop_time was reached")
                 break
+            if animaltag:
+                w=read_scale()
+                if not animaltag in animal_list:
+                    MODE = 3
+                    print("animal not in list")
+                    print(animaltag)
+                    break   
+                elif w>10 and w<heavy and GPIO.input(ard_pi_5) and int(round(time.time()))-animal_timer[animal_list.index(animaltag)]>nest_timeout:
+                    GPIO.output(pi_ard_1,False) # close door1
+                    MODE = 4
+                    choice_flag=False
+                    entry_flag=False
+                    water_flag=True
+                    break
             else:
                 MODE = 3
-                print("something wrong with new mode3")
+                print("*", end=",")
                 break
                 
     #correct animal on scale
@@ -398,10 +405,14 @@ while True:
             print("\nMODE 5\n")       
             print("\nblock start\n")
             print(animaltag)
-            print(datetime.now())
+            print(datetime.datetime.now())
+            mode5timer=int(round(time.time()))
             #Append data
             save.append_event("+", "", "START", animaltag, wheel_position, FED_position)
-                    
+    #time out mode5 if animal did not enter maze
+    if MODE == 5 and not entry_flag and int(round(time.time()))>mode5timer+300:
+        GPIO.output(pi_ard_2,False) # close door 2
+        MODE=1
     #animal at decision point
     if MODE == 5 and GPIO.input(ard_pi_2) and not choice_flag: 
         #BB2 triggered, write data
@@ -432,6 +443,7 @@ while True:
         #start camera capture/opto
         GPIO.output(Pi_capture_1,True)
         choice_flag=True
+        entry_flag=True
         run_flag=False
         food_flag=False
         lick_flag=True
@@ -443,11 +455,12 @@ while True:
     #animal going back home    
     if MODE == 5 and GPIO.input(ard_pi_1) and choice_flag:
         print("\nblock end\n")
-        print(datetime.now())
+        print(datetime.datetime.now())
         GPIO.output(pi_ard_2,False) # close door 2
         GPIO.output(pi_ard_1,True) # open door1
         save.append_event("-", "", "END", animaltag, wheel_position, FED_position)
         GPIO.output(Pi_capture_1,False)
+        GPIO.output(give_pellet,False)
         run_flag=False
         food_flag=False
         another_entered=False

@@ -10,7 +10,7 @@ Servo servo4;     // Servo 4 = running-wheel brake
 CapacitiveSensor   cs_30_31 = CapacitiveSensor(30,31);       // 10M resistor between pins 30 & 31, pin 31 is sensor pin, 
                                                        
 //Constants
-const int slowness = 3;   //slowness factor, ms wait between 1deg movements, change to set door speed
+const int slowness = 100;   //slowness factor, us wait between 1deg movements, change to set door speed
 //beam breaks
 const int pResistor1 = A0;//BB1
 const int pResistor2 = A1;//BB2
@@ -36,16 +36,17 @@ const int CLOSE_DOOR1 = 150;//Angle of 150 degrees -> door is closed
 const int OPEN_DOOR1 = 47;//Angle of 47 degrees -> door is opened
 const int CLOSE_DOOR2 = 164;//Angle of 155 degrees -> door is closed
 const int OPEN_DOOR2 = 30;//
-const int CLOSE_DOOR3 = 157;//Angle of 159 degrees -> middle passage is closed
+const int CLOSE_DOOR3 = 159;//Angle of 159 degrees -> middle passage is closed
 const int OPEN_DOOR3 = 89;//
 const int RELEASE_WHEEL = 80;//Angle of 39 degrees -> WHEEL is free
-const int BRAKE_WHEEL = 112;//CLAMPED
+const int BRAKE_WHEEL = 110;//CLAMPED
 
 //motor inputs from Pi
 const int pi_ard_1 = 22;//open door1
 const int pi_ard_2 = 23;//open door2
 const int pi_ard_3 = 24;//open door3
 const int pi_ard_4ow = 25;//release running wheel
+const int pi_ard_calibrate_lick = 27;//release
 
 //Variables
 int photo_value1;//Store value from photoresistor (0-1023)
@@ -58,12 +59,12 @@ int photo_value4;//Store value from photoresistor (0-1023)
 int INIT_READ4;
 int photo_value5;//Store value from photoresistor (0-1023)
 int INIT_READ5;
-int pos1_current = OPEN_DOOR1; //initial position variables for servos
-int pos1_target = OPEN_DOOR1;
-int pos2_current = OPEN_DOOR2; //initial position variables for servos
-int pos2_target = OPEN_DOOR2;
-int pos3_current = OPEN_DOOR3; //initial position variables for servos
-int pos3_target = OPEN_DOOR3;
+int pos1_current = CLOSE_DOOR1; //initial position variables for servos
+int pos1_target = CLOSE_DOOR1;
+int pos2_current = CLOSE_DOOR2; //initial position variables for servos
+int pos2_target = CLOSE_DOOR2;
+int pos3_current = CLOSE_DOOR3; //initial position variables for servos
+int pos3_target = CLOSE_DOOR3;
 int pos4_current = RELEASE_WHEEL; //initial position variables for servos
 int pos4_target = RELEASE_WHEEL;
 long start = millis();
@@ -75,7 +76,7 @@ int cs1;
 void setup()
 {
   cs_30_31.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate on channel 1 - just as an example
-  Serial.begin(9600);//setup serial
+  //Serial.begin(9600);//setup serial
   pinMode(pResistor1, INPUT);//Set photoResistor - A0 pin as an input 
   pinMode(pResistor2, INPUT);
   pinMode(pResistor3, INPUT);
@@ -91,10 +92,12 @@ void setup()
   pinMode(pi_ard_1, INPUT);//input commands from Pi
   pinMode(pi_ard_2, INPUT);
   pinMode(pi_ard_3, INPUT);
+  pinMode(pi_ard_4ow, INPUT);
+  pinMode(pi_ard_calibrate_lick, INPUT);
 
   servo1.attach(servoPin1);
   servo1.write(OPEN_DOOR1);
-  delay(1000);
+  delay(1500);
   INIT_READ5 = analogRead(pResistor5);//calibrate top of door detector when door1 open
   delay(200);
   servo1.write(CLOSE_DOOR1); 
@@ -110,9 +113,9 @@ void setup()
   servo3.write(CLOSE_DOOR3);
   servo4.attach(servoPin4);
   servo4.write(BRAKE_WHEEL);
-  delay(1000);
+  delay(100);
   servo4.write(RELEASE_WHEEL);
-  delay(500);
+  delay(1500);
   
   digitalWrite(ard_pi_1, LOW);//communication to Pi
   digitalWrite(ard_pi_2, LOW);
@@ -126,7 +129,7 @@ void setup()
   INIT_READ3 = analogRead(pResistor3);
   INIT_READ4 = analogRead(pResistor4);
   //collect lick sensor bsl
-  delay(500);
+  delay(1000);
   var = 0;
   cs_thresh=0;
   while (var < 5) 
@@ -136,19 +139,19 @@ void setup()
   }
   cs_thresh=(cs_thresh/5)+200; //threshold 200 units above bsl
   delay(100);
-  Serial.print("cs_threshold   ");  //show value for trouble shooting if serial monitor is on
-  Serial.println(cs_thresh);        //show value for trouble shooting if serial monitor is on
-  
-  Serial.print("INIT_READ1 ");  //show beam break values for trouble shooting if serial monitor is on
-  Serial.println(INIT_READ1);  
-  Serial.print("INIT_READ2 ");  
-  Serial.println(INIT_READ2);  
-  Serial.print("INIT_READ3 ");  
-  Serial.println(INIT_READ3);  
-  Serial.print("INIT_READ4 ");  
-  Serial.println(INIT_READ4);  
-  Serial.print("INIT_READ5 ");  
-  Serial.println(INIT_READ5);
+//  Serial.print("cs_threshold   ");  //show value for trouble shooting if serial monitor is on
+//  Serial.println(cs_thresh);        //show value for trouble shooting if serial monitor is on
+//  
+//  Serial.print("INIT_READ1 ");  //show beam break values for trouble shooting if serial monitor is on
+//  Serial.println(INIT_READ1);  
+//  Serial.print("INIT_READ2 ");  
+//  Serial.println(INIT_READ2);  
+//  Serial.print("INIT_READ3 ");  
+//  Serial.println(INIT_READ3);  
+//  Serial.print("INIT_READ4 ");  
+//  Serial.println(INIT_READ4);  
+//  Serial.print("INIT_READ5 ");  
+//  Serial.println(INIT_READ5);
 }
 
 void loop()
@@ -245,52 +248,52 @@ void loop()
     {
         pos1_current=pos1_current+1;
         servo1.write(pos1_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
     if (pos1_current>pos1_target)
     {
         pos1_current=pos1_current-1;
         servo1.write(pos1_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
 
     if (pos2_current<pos2_target) //SERVO 2
     {
         pos2_current=pos2_current+1;
         servo2.write(pos2_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
     if (pos2_current>pos2_target)
     {
         pos2_current=pos2_current-1;
         servo2.write(pos2_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
 
     if (pos3_current<pos3_target) //SERVO 3
     {
         pos3_current=pos3_current+1;
         servo3.write(pos3_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
     if (pos3_current>pos3_target)
     {
         pos3_current=pos3_current-1;
         servo3.write(pos3_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
 
     if (pos4_current<pos4_target) //SERVO 4
     {
         pos4_current=pos4_current+1;
         servo4.write(pos4_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
     if (pos4_current>pos4_target)
     {
         pos4_current=pos4_current-1;
         servo4.write(pos4_current);     
-        delay(slowness); 
+        delayMicroseconds(slowness); 
     }
 
     //target commands
@@ -330,4 +333,18 @@ void loop()
     {
         pos4_target=BRAKE_WHEEL;
     }
+    //recalibrate lick sensor
+    if ((digitalRead(pi_ard_calibrate_lick) == HIGH)) 
+    {
+        var = 0;
+        cs_thresh=0;
+        while (var < 5) 
+        {
+          cs_thresh =  cs_thresh+cs_30_31.capacitiveSensor(30); //resolution 30
+          var++;
+        }
+        cs_thresh=(cs_thresh/5)+200; //threshold 200 units above bsl
+        delay(10);
+    }
+    
 }//void loop end
