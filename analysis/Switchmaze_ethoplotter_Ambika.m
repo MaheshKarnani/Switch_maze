@@ -23,8 +23,8 @@ opts.VariableTypes = ["string", "categorical", "double", "categorical", "categor
 events = readtable(filename, opts);
 clear opts
 %% chop
-chop_from=datetime('2022-Mar-01 10:00:00.000','InputFormat','yyyy-MM-dd HH:mm:ss.SSS');
-chop_to=datetime('2022-Mar-18 23:00:00.000','InputFormat','yyyy-MM-dd HH:mm:ss.SSS');
+chop_from=datetime('2022-Mar-20 10:00:00.000','InputFormat','yyyy-MM-dd HH:mm:ss.SSS');
+chop_to=datetime('2022-Mar-24 23:00:00.000','InputFormat','yyyy-MM-dd HH:mm:ss.SSS');
 bin=hours(1);
 
 % % dreadd bsl exp 0.5mg/kg
@@ -313,6 +313,12 @@ ylabel('sq=w,g circles=trials/block');
 
 %rolling average of maze entries over time range chop_from=datetime('2022-Mar-01 10:00:00.000','InputFormat','yyyy-MM-dd HH:mm:ss.SSS');
 % to chop_to=datetime('2022-Mar-18 23:00:00.000','InputFormat','yyyy-MM-dd HH:mm:ss.SSS');
+
+j=1;%index counter
+for t=chop_from:bin:chop_to
+    binned(a).starts(j)=size(find(x(starts)>t & x(starts)<t+bin),1);
+    j=j+1;
+end
 
 %number of maze entries during a 6h window after saline, 6h window after C21 and 6h window after
 %saline the following day on these days
