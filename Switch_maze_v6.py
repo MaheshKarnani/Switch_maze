@@ -12,10 +12,10 @@ import datetime
 import numpy as np
 
 #recording parameters
-start_time = datetime.datetime.now()+datetime.timedelta(minutes=5)
-stop_time = datetime.datetime(2022,3,10,9,30)#input stop time date, hour, minute
-animal_list = ["2006010137","141821018163","141821018138","141821018308"] #list of tags in the recording (use scan tags code first to find out who they are),FD"141821018180"
-#animal_list = ["202100030","137575399426", "2006010085"]#test sticks x and y
+start_time = datetime.datetime.now()+datetime.timedelta(minutes=10)
+stop_time = datetime.datetime(2022,3,27,9,30)#input stop time date, hour, minute
+animal_list = ["2006010137","141821018163","141821018138","141821018308"]#mouse tags
+#animal_list = ["202100030","137575399426", "2006010085"]#test tags
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
 run_time = 120 # running wheel availability in seconds 120s standard
 chuck_lines=2 # chuck first weight reads for stability
