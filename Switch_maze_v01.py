@@ -15,7 +15,7 @@ pi = pigpio.pi()
 
 #recording parameters
 start_time = datetime.datetime.now()+datetime.timedelta(minutes=5)
-stop_time = datetime.datetime(2022,6,21,20,00)#input stop time date, hour, minute
+stop_time = datetime.datetime(2022,7,7,9,00)#input stop time date, hour, minute
 animal_list = ["34443624728","34443624890","34443625017","141868466285"]#mouse tags 
 #animal_list = ["202100030","137575399426", "2006010085"]#test tags
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
@@ -31,13 +31,13 @@ def food_side(FED):
     elif FED == "Right":
         water = "Left"
     return [water, FED]
-water_position, FED_position = food_side("Right") #change here is goals switched from standard wheel_side("Left")
-if food_side == "Left":
-    ard_pi_3 = 36 #arduino pins BB3/4
-    ard_pi_4 = 37 
-elif food_side == "Right":
-    ard_pi_3 = 37 #arduino pins BB3/4
-    ard_pi_4 = 36 
+water_position, FED_position = food_side("Left") #change here is goals switched from standard wheel_side("Left")
+if FED_position == "Left":
+    ard_pi_3 = 16 #arduino pins BB3/4
+    ard_pi_4 = 26 
+elif FED_position == "Right":
+    ard_pi_3 = 26 #arduino pins BB3/4
+    ard_pi_4 = 16 
 
 # change directory to document data folder
 os.chdir("/home/pi/Documents/Data/")     
@@ -69,24 +69,24 @@ if ser.is_open==True:
     print(ser, "\n") #print serial parameters
 
 # set pin inputs from arduino
-ard_pi_1 = 33 # reports BB1low
-ard_pi_2 = 35 # reports BB2low
-ard_pi_5 = 38 # reports BB5high
-ard_pi_lick = 32 # reports Capacitive lick sensor
+ard_pi_1 = 13 # reports BB1low
+ard_pi_2 = 19 # reports BB2low
+ard_pi_5 = 20 # reports BB5high
+ard_pi_lick = 12 # reports Capacitive lick sensor
 
 # set pins to and from FED3
-Food_retrieval = 10 # BNC output FED3
+Food_retrieval = 15 # BNC output FED3
 pi.set_mode(Food_retrieval, pigpio.INPUT)
-pi.set_mode(Food_retrieval, pigpio.PUD_DOWN)
-give_pellet = 23 #trigger FED3
+# pi.set_mode(Food_retrieval, pigpio.PUD_DOWN)
+give_pellet = 11 #trigger FED3
 pi.set_mode(give_pellet, pigpio.OUTPUT)
 
 # pin to water valve
-give_water = 29 #to valve
+give_water = 5 #to valve
 pi.set_mode(give_water, pigpio.OUTPUT)
 
 #set pin inputs from running wheel rotary encoder
-wheel_in_port=12
+wheel_in_port=18
 pi.set_mode(wheel_in_port, pigpio.INPUT)
 clkLastState=pi.read(wheel_in_port)
 cycle=90 #cycle on running wheel gives approx this many counts 1200 600b 90 copal;
@@ -94,18 +94,18 @@ run_clk_start = 0
 wheel_duration=run_time*1000
 
 #set pin input room door sensor
-room_door=22 #IR proximity detector on room door
+room_door=25 #IR proximity detector on room door
 pi.set_mode(room_door, pigpio.INPUT)
 pi.set_mode(room_door, pigpio.PUD_DOWN)
 
 # set pin outputs to arduino
-pi_ard_1 = 15 #open door1
-pi_ard_2 = 13 #open door2
-pi_ard_3 = 16 #open door3
-pi_ard_4ow = 5 #open wheel
-Pi_capture_1  =40 #start miniscope
-PiArd_reset = 18 #reset arduino
-pi_ard_calibrate_lick = 24 #recalibrate capacitive lick sensor
+pi_ard_1 = 22 #open door1
+pi_ard_2 = 27 #open door2
+pi_ard_3 = 23 #open door3
+pi_ard_4ow = 3 #open wheel
+Pi_capture_1  =21 #start miniscope
+PiArd_reset = 24 #reset arduino
+pi_ard_calibrate_lick = 8 #recalibrate capacitive lick sensor
 
 pi.set_mode(pi_ard_1, pigpio.OUTPUT)
 pi.set_mode(pi_ard_2, pigpio.OUTPUT)
