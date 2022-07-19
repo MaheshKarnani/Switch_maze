@@ -14,8 +14,8 @@ import numpy as np
 pi = pigpio.pi() 
 
 #recording parameters
-start_time = datetime.datetime.now()+datetime.timedelta(minutes=5)
-stop_time = datetime.datetime(2022,7,7,9,00)#input stop time date, hour, minute
+start_time = datetime.datetime.now()+datetime.timedelta(minutes=14)
+stop_time = datetime.datetime(2022,7,20,9,00)#input stop time date, hour, minute
 animal_list = ["34443624728","34443624890","34443625017","141868466285"]#mouse tags 
 #animal_list = ["202100030","137575399426", "2006010085"]#test tags
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
@@ -31,7 +31,7 @@ def food_side(FED):
     elif FED == "Right":
         water = "Left"
     return [water, FED]
-water_position, FED_position = food_side("Left") #change here is goals switched from standard wheel_side("Left")
+water_position, FED_position = food_side("Right") #change here is goals switched from standard wheel_side("Left")
 if FED_position == "Left":
     ard_pi_3 = 16 #arduino pins BB3/4
     ard_pi_4 = 26 
@@ -96,7 +96,6 @@ wheel_duration=run_time*1000
 #set pin input room door sensor
 room_door=25 #IR proximity detector on room door
 pi.set_mode(room_door, pigpio.INPUT)
-pi.set_mode(room_door, pigpio.PUD_DOWN)
 
 # set pin outputs to arduino
 pi_ard_1 = 22 #open door1
