@@ -1,5 +1,5 @@
 #Switch_maze
-#2022#Jul02 pigpio
+#2022#Jul02 pigpio --hardware time added Jul20th TO TEST!
 
 import serial
 import time
@@ -279,7 +279,8 @@ class SaveData:
             df_w.to_csv(animaltag + "_weight.csv", mode="a+", header=False, encoding="utf-8-sig", index=False)
             print("weight file appended")
         
-    def append_event(self,rotation,food_time,event_type,animaltag,FED_position):
+    def append_event(self,rotation,food_time,event_type,animaltag,FED_position,hardware_time): #add hardware time call outs to below!
+        
         """
         Function used to save event parameters to a .csv file
         """
@@ -316,16 +317,17 @@ class SaveData:
 
 def door_callback(gpio,level,tick):
     print(gpio,level,tick)
+    tick = pi.get_current_tick()
     if not level:
         print("door closed")      
         for x in range(np.size(animal_list)):
             fn=animal_list[x]
-            save.append_event(run_time, water_time, "room door closed", fn, FED_position)
+            save.append_event(run_time, water_time, "room door closed", fn, FED_position,tick)
     else:
         print("door OPEN")
         for x in range(np.size(animal_list)):
             fn=animal_list[x]
-            save.append_event(run_time, water_time, "room door opened", fn, FED_position)
+            save.append_event(run_time, water_time, "room door opened", fn, FED_position,tick)
 
 cb1=pi.callback(room_door,pigpio.EITHER_EDGE,door_callback)
 
@@ -351,7 +353,8 @@ elif res==0:
 #save session parameters
 for x in range(np.size(animal_list)):
     animaltag=animal_list[x]
-    save.append_event(run_time, water_time, "begin session", animaltag, FED_position)
+    tick = pi.get_current_tick()
+    save.append_event(run_time, water_time, "begin session", animaltag, FED_position,tick)
 '''
 begin execution loop
 '''
@@ -411,7 +414,8 @@ while True:
         flag_heavy = acquire_weight(animaltag)
         if flag_heavy:
             #Append data
-            save.append_event("+", "", "ENTRY DENIED MULTIPLE ANIMALS", animaltag, FED_position)
+            tick = pi.get_current_tick()
+            save.append_event("+", "", "ENTRY DENIED MULTIPLE ANIMALS", animaltag, FED_position,tick)
             MODE = 1
         if not flag_heavy:
             pi.write(pi_ard_2,1) # open door 2
@@ -423,7 +427,8 @@ while True:
             print(datetime.datetime.now())
             mode5timer=int(round(time.time()))
             #Append data
-            save.append_event("+", "", "START", animaltag, FED_position)
+            tick = pi.get_current_tick()
+            save.append_event("+", "", "START", animaltag, FED_position,tick)
     #time out mode5 if animal did not enter maze
     if MODE == 5 and not entry_flag and int(round(time.time()))>mode5timer+300:
         pi.write(pi_ard_2,0) # close door 2
@@ -442,19 +447,23 @@ while True:
             water_flag=False
         # append BB2 for the first time the animal enters the maze
         if event_list["Type"] == ["START"]:
-            save.append_event("*", "", "BB2", animaltag, FED_position)
+            tick = pi.get_current_tick()
+            save.append_event("*", "", "BB2", animaltag, FED_position,tick)
         # append food data
         if food_flag:
 #             print("appending food pod data")
             cycles_str = round(counter/cycle,4)
+            tick = pi.get_current_tick()
             save.append_event(cycles_str, "", "Food_log_BB2", animaltag, FED_position)
         # append run data
         if run_flag:
 #             print("appending running wheel data, licks:")
             print(licks)
             cycles_str = round(counter/cycle,4)
-            save.append_event(cycles_str, "", "Run_log_BB2", animaltag, FED_position)
-            save.append_event(licks, drink_delay, "exit_drink", animaltag, FED_position)
+            tick = pi.get_current_tick()
+            save.append_event(cycles_str, "", "Run_log_BB2", animaltag, FED_position,tick)
+            tick = pi.get_current_tick()
+            save.append_event(licks, drink_delay, "exit_drink", animaltag, FED_position,tick)
         #start camera capture/opto
         pi.write(Pi_capture_1,1)
         choice_flag=True
@@ -473,7 +482,8 @@ while True:
         print(datetime.datetime.now())
         pi.write(pi_ard_2,0) # close door 2
         pi.write(pi_ard_1,1) # open door1
-        save.append_event("-", "", "END", animaltag, FED_position)
+        tick = pi.get_current_tick()
+        save.append_event("-", "", "END", animaltag, FED_position,tick)
         pi.write(Pi_capture_1,0)
         pi.write(give_pellet,0)
         run_flag=False
@@ -493,7 +503,8 @@ while True:
         print("\nenter food\n")
         pi.write(give_pellet,0) # signal back low so you can trigger next one
         pi.write(pi_ard_3,0) # close door 3
-        save.append_event("*", "", "BB4", animaltag, FED_position)
+        tick = pi.get_current_tick()
+        save.append_event("*", "", "BB4", animaltag, FED_position,tick)
         food_clk_start = time.process_time()
         choice_flag=False
         food_flag=True
@@ -518,7 +529,8 @@ while True:
             food_clk_end = round(time.process_time() - food_clk_start, 4)
             pellet_complete_flag=False
             print("EAT") 
-            save.append_event("", food_clk_end, "Food_retrieval", animaltag, FED_position) 
+            tick = pi.get_current_tick()
+            save.append_event("", food_clk_end, "Food_retrieval", animaltag, FED_position,tick) 
     #record running wheel and licking   
     if run_flag:
         clkState=pi.read(wheel_in_port)
@@ -535,7 +547,8 @@ while True:
             water_flag=True
             if lick_flag:
                 drink_delay=int(round(time.time() * 1000))-lick_timer
-                save.append_event("", drink_delay, "drink", animaltag, FED_position) 
+                tick = pi.get_current_tick()
+                save.append_event("", drink_delay, "drink", animaltag, FED_position,tick) 
                 pi.write(give_water,1) # give a water drop
                 time.sleep(water_time)
                 pi.write(give_water,0) 
