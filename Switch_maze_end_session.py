@@ -1,9 +1,9 @@
 #end of session: remove animals, write a note and run this script
-note=["sal2 cage2 quad with previous start 18:48 lights 2132/0932, lick thresh 300, 120s wheel access 0.1s water is 10ul 1 pellet participants 38723977393 ,38723977500, 38723977309"]
-injection_time=["11:17"]
+note=["hab1 c4 LHdreadd lights 2230/1030, lick thresh 300, 120s wheel access 0.1s water is 10ul 1 pellet participants 38723977393 ,38723977500, 38723977309"]
+injection_time=[""]
 issue=[""]#note here if something went wrong!
 
-animal_list = ["2006010137","141821018163","141821018138","141821018308"]
+animal_list = ["34443624728","34443624890","34443625017","141868466285"]
 
 import serial
 import time

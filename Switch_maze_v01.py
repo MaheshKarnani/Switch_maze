@@ -1,5 +1,5 @@
 #Switch_maze
-#2022#Jul02 pigpio --hardware time added Jul20th TO TEST!
+#2022#Jul02 pigpio --hardware time added Jul20th tested
 
 import serial
 import time
@@ -14,8 +14,8 @@ import numpy as np
 pi = pigpio.pi() 
 
 #recording parameters
-start_time = datetime.datetime.now()+datetime.timedelta(minutes=14)
-stop_time = datetime.datetime(2022,7,20,9,00)#input stop time date, hour, minute
+start_time = datetime.datetime.now()+datetime.timedelta(minutes=12)
+stop_time = datetime.datetime(2022,8,12,9,00)#input stop time date, hour, minute
 animal_list = ["34443624728","34443624890","34443625017","141868466285"]#mouse tags 
 #animal_list = ["202100030","137575399426", "2006010085"]#test tags
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
@@ -454,7 +454,7 @@ while True:
 #             print("appending food pod data")
             cycles_str = round(counter/cycle,4)
             tick = pi.get_current_tick()
-            save.append_event(cycles_str, "", "Food_log_BB2", animaltag, FED_position)
+            save.append_event(cycles_str, "", "Food_log_BB2", animaltag, FED_position,tick)
         # append run data
         if run_flag:
 #             print("appending running wheel data, licks:")
@@ -514,7 +514,8 @@ while True:
         print("\nenter water\n")
         pi.write(pi_ard_4ow,1) # open running wheel
         pi.write(pi_ard_3,0) # close door 3
-        save.append_event("*", "", "BB3", animaltag, FED_position)
+        tick = pi.get_current_tick()
+        save.append_event("*", "", "BB3", animaltag, FED_position,tick)
         run_clk_start = time.process_time()
         choice_flag=False
         run_flag=True
