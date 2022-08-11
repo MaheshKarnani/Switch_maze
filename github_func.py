@@ -4,7 +4,7 @@ from github import InputGitTreeElement
 fd="C:\Data\Tmaze\\"
 #os.chdir(fd)
 
-g = Github("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")
+g = Github("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")
 repo = g.get_user().get_repo('Switch_maze') # repo name
 
 animal_list=["34443624728","34443624890"]
@@ -13,7 +13,7 @@ file_list=list()
 file_names=list()
 for i, entry in enumerate(animal_list):
     file_list.append(fd+animal_list[i]+"_weight.csv")
-    file_names.append(tickatlab_list[i]+"_weight.csv")
+    file_names.append("wdata/"+tickatlab_list[i]+"_weight.csv")
 
 commit_message = 'weights from 5s automatic measurement during entry'
 master_ref = repo.get_git_ref('heads/main')
