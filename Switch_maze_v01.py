@@ -14,9 +14,9 @@ import numpy as np
 pi = pigpio.pi() 
 
 #recording parameters
-start_time = datetime.datetime.now()+datetime.timedelta(minutes=12)
-stop_time = datetime.datetime(2022,8,12,9,00)#input stop time date, hour, minute
-animal_list = ["34443624728","34443624890","34443625017","141868466285"]#mouse tags 
+start_time = datetime.datetime.now()+datetime.timedelta(minutes=20)
+stop_time = datetime.datetime(2022,11,16,18,00)#9,30)#input stop time date, hour, minute
+animal_list = ["34443624695","34443624808","137575399507","34443624982"]#mouse tags 
 #animal_list = ["202100030","137575399426", "2006010085"]#test tags
 water_time = 0.1 # seconds water dispensed when animal licks spout 0.1=20ul standard
 run_time = 120 # running wheel availability in seconds 120s standard
@@ -44,7 +44,7 @@ os.chdir("/home/pi/Documents/Data/")
 
 #initialize serial port for usb RFID
 serRFID = serial.Serial()
-serRFID.port = '/dev/ttyUSB2' 
+serRFID.port = '/dev/ttyUSB1' 
 serRFID.baudrate = 9600
 serRFID.timeout = 100 # timeout in seconds when using readline()
 serRFID.open()
@@ -55,7 +55,7 @@ serRFID.close()
 
 #initialize serial port for usb OpenScale
 ser = serial.Serial()
-ser.port = '/dev/ttyUSB1' 
+ser.port = '/dev/ttyUSB0' 
 ser.baudrate = 19200
 ser.timeout = 100
 #specify timeout when using readline()
@@ -290,13 +290,15 @@ class SaveData:
             "Rotation": [],
             "Pellet_Retrieval": [],
             "Type" : [],
-            "FED_Position": []    
+            "FED_Position": [],
+            "hardware_time": []  
         }
         event_list.update({'Rotation': [rotation]})
         event_list.update({'Pellet_Retrieval': [food_time]})
         event_list.update({'Type': [event_type]})
         event_list.update({'Date_Time': [datetime.datetime.now()]})
         event_list.update({'FED_Position': [FED_position]})
+        event_list.update({'hardware_time': [hardware_time]})
         df_e = pd.DataFrame(event_list)
         if not os.path.isfile(animaltag + "_events.csv"):
             df_e.to_csv(animaltag + "_events.csv", encoding="utf-8-sig", index=False)
@@ -430,7 +432,7 @@ while True:
             tick = pi.get_current_tick()
             save.append_event("+", "", "START", animaltag, FED_position,tick)
     #time out mode5 if animal did not enter maze
-    if MODE == 5 and not entry_flag and int(round(time.time()))>mode5timer+300:
+    if MODE == 5 and pi.read(ard_pi_1) and not entry_flag and int(round(time.time()))>mode5timer+300:
         pi.write(pi_ard_2,0) # close door 2
         MODE=1
     #animal at decision point

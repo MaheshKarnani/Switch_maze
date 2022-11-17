@@ -1,10 +1,11 @@
 #end of session: remove animals, write a note and run this script
-note=["hab1 c4 LHdreadd lights 2230/1030, lick thresh 300, 120s wheel access 0.1s water is 10ul 1 pellet participants 38723977393 ,38723977500, 38723977309"]
-injection_time=[""]
+note=["refeed C21 0.05mg/kg c6 LHdreadd lights 2230/1030, lick thresh 100, 120s wheel access 0.1s water is 10ul 1 pellet"]
+injection_time=["10:30"]
 issue=[""]#note here if something went wrong!
 
-animal_list = ["34443625017","34443624890","34443624728","141868466285"]
-tickatlab_list=["04181-41015","04181-41016","04181-41017","04181-41018"]
+animal_list = ["34443624695","34443624808","137575399507","34443624982"]#mouse tags 
+earmarks = ["R","L","RL","nm"]
+tickatlab_list=["04435/1o1-42717","04435/1o1-42718","04435/1o1-42719","04435/1o1-42720"]
 
 import serial
 import time
@@ -14,7 +15,7 @@ import pandas as pd
 import statistics as stats
 import time
 import sys
-from datetime import datetime
+import datetime
 import numpy as np
 import base64
 from github import Github
@@ -23,7 +24,7 @@ fd="/home/pi/Documents/Data/"
 os.chdir(fd)
 
 #deposit weight data to public repository
-g = Github("token")
+g = Github("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")
 repo = g.get_user().get_repo('Switch_maze') # repo name
 file_list=list()
 file_names=list()
@@ -47,8 +48,8 @@ master_ref.edit(commit.sha)
 
 #mark end of session in event list
 class SaveData:
-    def append_event(self,rotation,food_time,event_type,animaltag,
-                     wheel_position,FED_position):
+    def append_event(self,rotation,food_time,event_type,animaltag,FED_position,hardware_time): #add hardware time call outs to below!
+        
         """
         Function used to save event parameters to a .csv file
         """
@@ -58,17 +59,16 @@ class SaveData:
             "Rotation": [],
             "Pellet_Retrieval": [],
             "Type" : [],
-            "Wheel_Position": [],
-            "FED_Position": []    
+            "FED_Position": [],
+            "hardware_time": []  
         }
         event_list.update({'Rotation': [rotation]})
         event_list.update({'Pellet_Retrieval': [food_time]})
         event_list.update({'Type': [event_type]})
-        event_list.update({'Date_Time': [datetime.now()]})
-        event_list.update({'Wheel_Position': [wheel_position]})
+        event_list.update({'Date_Time': [datetime.datetime.now()]})
         event_list.update({'FED_Position': [FED_position]})
+        event_list.update({'hardware_time': [hardware_time]})
         df_e = pd.DataFrame(event_list)
-        #print(df_e)
         if not os.path.isfile(animaltag + "_events.csv"):
             df_e.to_csv(animaltag + "_events.csv", encoding="utf-8-sig", index=False)
         else:
@@ -77,4 +77,3 @@ save = SaveData()
 for x in range(np.size(animal_list)):
     animaltag=animal_list[x]
     save.append_event(issue, note, "end session", animaltag, injection_time, "")
-    
