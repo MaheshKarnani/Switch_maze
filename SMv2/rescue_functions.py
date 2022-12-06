@@ -7,6 +7,7 @@ import pandas as pd
 import statistics as stats
 import datetime
 import numpy as np
+import yagmail
 """
 Functions and parameters for switch maze mouse rescue.
 """

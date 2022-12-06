@@ -30,7 +30,23 @@ while True:
             print("sem confirmed empty")            
             MODE=1
             if return_flag==animals:
-                print("all animals returned")          
+                print("all animals returned")
+                try:
+                    # initializing the server connection
+                    yag = yagmail.SMTP(
+                        user="switchmazebot2000@gmail.com", oauth2_file="~/oauth2_creds.json"
+                    )
+                    # sending the email
+                    yag.send(
+                        to="m.m.karnani@vu.nl",
+                        subject="Switch maze rescue complete",
+                        contents="""
+                        Switch maze rescue is complete.
+                        """,
+                    )
+                    print("Email sent successfully")
+                except:
+                    print("Error, email was not sent")
         elif w > 5:
             print("sem not empty on double check")
             pi.write(pi_ard_1, 1)  # open door1
