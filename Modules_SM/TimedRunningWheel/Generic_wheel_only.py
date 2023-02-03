@@ -24,27 +24,27 @@ while True:
     # wait for wheel use and record it      
     if MODE == 2:
         clkState=pi.read(wheel_in_port)
-            # record rotary encoder
-            if clkState != clkLastState:
-                counter += 1  
-                clkLastState = clkState
-            # record latency to run start at first quarter revolution
-            if start_flag and counter>limit/4: 
-                tick = pi.get_current_tick()
-                save.append_event("", "", "run_start", animaltag,tick) 
-                run_clk_start = int(round(time.time() * 1000))
-                latency_to_run = run_clk_start-start_timer
-                start_flag=False
-            # print recorded encoder ticks after each revolution
-            if counter >= limit:
-                print(counter)
-                limit=counter+cycle
-            # time is up
-            if int(round(time.time() * 1000)) - run_clk_start > run_time:
-                pi.write(pi_ard_ow, 0)  # close running wheel
-                cycles_str = round(counter / cycle, 4)
-                tick = pi.get_current_tick()
-                save.append_event(cycles_str, "", "Run_log", animaltag, tick)
-                print("\nwheel closed\n")
-                time.sleep(off_time)
-                MODE=1
+        # record rotary encoder
+        if clkState != clkLastState:
+            counter += 1  
+            clkLastState = clkState
+        # record latency to run start at first quarter revolution
+        if start_flag and counter>limit/4: 
+            tick = pi.get_current_tick()
+            save.append_event("", "", "run_start", animaltag,tick) 
+            run_clk_start = int(round(time.time() * 1000))
+            latency_to_run = run_clk_start-start_timer
+            start_flag=False
+        # print recorded encoder ticks after each revolution
+        if counter >= limit:
+            print(counter)
+            limit=counter+cycle
+        # time is up
+        if not start_flag and int(round(time.time() * 1000)) - run_clk_start > run_time:
+            pi.write(pi_ard_ow, 0)  # close running wheel
+            cycles_str = round(counter / cycle, 4)
+            tick = pi.get_current_tick()
+            save.append_event(cycles_str, "", "Run_log", animaltag, tick)
+            print("\nwheel closed\n")
+            time.sleep(off_time)
+            MODE=1

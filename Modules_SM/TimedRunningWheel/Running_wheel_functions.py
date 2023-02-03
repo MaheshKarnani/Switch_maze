@@ -12,9 +12,10 @@ Functions and parameters for switch maze standard operation.
 Change e.g., cohort tags and water amount here.
 """
 # hard-coded recording parameters
-off_time = 60 # seconds run wheel clamped after time is up
-run_time = 60 # seconds of run wheel access after start detected
+off_time = 6 # seconds run wheel clamped after time is up
+run_time = 5000 # milliseconds of run wheel access after start detected
 animaltag='001'
+cycle=120
 # document data folder
 os.chdir("/home/pi/Documents/Data/")
 # init pigpio
@@ -27,6 +28,7 @@ pi.set_mode(pi_ard_ow, pigpio.OUTPUT)
 
 # initialize state variables
 MODE = 1
+clkLastState=0
 
 class SaveData:
     def append_event(
