@@ -1,14 +1,14 @@
 #include<Servo.h>
 Servo servo4;     // Servo 4 = running-wheel brake                                                   
 //Constants
-const int slowness = 150;   //slowness factor, us wait between 1deg movements, change to set door speed
+const int slowness = 500;   //slowness factor, us wait between 1deg movements, change to set door speed
 //servo pin
 const int servoPin4 = 9;// brake servo in running wheel
 //break servo angles: determine empirically
 const int RELEASE_WHEEL = 80;//Angle of 80 degrees -> WHEEL is free
 const int BRAKE_WHEEL = 110;//CLAMPED
 //command inputs from Pi
-const int pi_ard_4ow = 25;//release running wheel
+const int pi_ard_4ow = 1;//release running wheel
 //Variables
 int pos4_current = RELEASE_WHEEL; //initial position variables for servos
 int pos4_target = RELEASE_WHEEL;
