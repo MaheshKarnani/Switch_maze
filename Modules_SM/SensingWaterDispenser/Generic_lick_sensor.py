@@ -10,7 +10,7 @@ This is an example.
 while True:
     # reset
     if MODE == 1:
-        print("\nwater available\n")
+        print("water available")
         tick = pi.get_current_tick()
         save.append_event("*", "", "drop_available", animaltag, tick)
         lick_timer = int(round(time.time() * 1000))
@@ -23,9 +23,9 @@ while True:
     if MODE == 2:
         if pi.read(ard_pi_lick):
             licks = licks + 1
-            water_flag = True
             if lick_flag:
-                drink_delay = int(round(time.time() * 1000)) - lick_timer
+                drink_time = int(round(time.time() * 1000))
+                drink_delay = drink_time - lick_timer
                 tick = pi.get_current_tick()
                 save.append_event("", drink_delay, "drink", animaltag, tick)
                 pi.write(give_water, 1)  # give a water drop
@@ -33,8 +33,7 @@ while True:
                 pi.write(give_water, 0)
                 lick_flag = False
                 print("DRINK")
-                time_to_next=int(round(time.time() * 1000)) - drink_delay - lick_timer
-    if MODE == 2 and time_to_next>1000:
+    if MODE == 2 and not lick_flag and int(round(time.time() * 1000)) - drink_time>timeout:
         tick = pi.get_current_tick()
         save.append_event("*", licks, "lick_tally", animaltag, tick)
         MODE=1

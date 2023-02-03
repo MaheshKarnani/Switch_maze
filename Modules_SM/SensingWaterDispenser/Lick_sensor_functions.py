@@ -13,6 +13,7 @@ Change e.g., cohort tags and water amount here.
 """
 # hard-coded recording parameters
 water_time = 0.1  # seconds water dispensed when animal licks spout 0.1=20ul standard
+timeout = 1000 # milliseconds to wait between dispensed drops
 animaltag='001'
 # document data folder
 os.chdir("/home/pi/Documents/Data/")
@@ -36,7 +37,6 @@ pi.write(PiArd_reset, 1)  # back HIGH so it stops resetting
 
 # initialize state variables
 MODE = 1
-water_flag = True
 
 class SaveData:
     def append_event(
