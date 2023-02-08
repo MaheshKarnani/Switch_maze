@@ -28,12 +28,19 @@ while True:
             animaltag = RFID_readtag("RFID1")
             if animaltag:
                 w = read_scale()
-                print(pi.read(ard_pi_BB1))
-                print(int(round(time.time()))
-                    - animal_timer[animal_list.index(animaltag)]
-                    > nest_timeout)
+                if w<light:
+                    print("too light ")
+                    print(w)
+                if w>heavy:
+                    print("too heavy ")
+                    print(w)
+                if not int(round(time.time()))- animal_timer[animal_list.index(animaltag)]> nest_timeout:
+                    print("too soon after last visit, time to next ")
+                    print(int(round(time.time()))- animal_timer[animal_list.index(animaltag)]-nest_timeout)
+                if not pi.read(ard_pi_BB1):
+                    print("BB1 detected something - not safe to close door 1")
                 if (
-                    w > 10
+                    w > light
                     and w < heavy
                     and pi.read(ard_pi_BB1)
                     and int(round(time.time()))
@@ -62,6 +69,7 @@ while True:
             save.append_event(
                 "+", "", "ENTRY DENIED MULTIPLE ANIMALS", animaltag, tick
             )
+            print("ENTRY DENIED MULTIPLE ANIMALS")
             MODE = 1
         if not flag_heavy:
             pi.write(pi_ard_door2, 1)  # open door 2
