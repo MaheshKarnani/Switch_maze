@@ -28,6 +28,10 @@ while True:
             animaltag = RFID_readtag("RFID1")
             if animaltag:
                 w = read_scale()
+                print(pi.read(ard_pi_BB1))
+                print(int(round(time.time()))
+                    - animal_timer[animal_list.index(animaltag)]
+                    > nest_timeout)
                 if (
                     w > 10
                     and w < heavy
@@ -62,18 +66,18 @@ while True:
         if not flag_heavy:
             pi.write(pi_ard_door2, 1)  # open door 2
             tick = pi.get_current_tick()
-            save.append_event(cycles_str, "", "entry", animaltag, tick)
+            save.append_event("", "", "entry", animaltag, tick)
             print("\nPASS\n")
             print(animaltag)
             print(datetime.datetime.now())
             time.sleep(minimum_entry_time)
+            print("waiting for exit")
+            print(datetime.datetime.now())
             MODE = 4
 
     # wait for exit    
     if MODE == 4:
-        print("waiting for exit")
-        print(datetime.datetime.now())
-        if not pi.read(ard_pi_BB2)
+        if pi.read(ard_pi_BB2):
             pi.write(pi_ard_door2, 0)  # close door 2
             animal_timer[animal_list.index(animaltag)] = int(round(time.time()))
             MODE = 1

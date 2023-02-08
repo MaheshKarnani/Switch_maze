@@ -11,6 +11,24 @@ import numpy as np
 Functions and parameters for switch maze standard operation.
 Change e.g., cohort tags and water amount here.
 """
+#initialize ard during user input
+pi = pigpio.pi() # init pigpio
+pi_ard_door1 = 15
+pi_ard_door2 = 18
+pi.set_mode(pi_ard_door1, pigpio.OUTPUT)
+pi.set_mode(pi_ard_door2, pigpio.OUTPUT)
+ard_pi_BB1 = 23# reports BB1low
+ard_pi_BB2 = 24# reports BB2low
+pi.set_mode(ard_pi_BB1, pigpio.INPUT)
+pi.set_mode(ard_pi_BB2, pigpio.INPUT)
+pi.write(pi_ard_door1, 0)  # close door1
+pi.write(pi_ard_door2, 0)  # close door2
+PiArd_reset = 14
+pi.set_mode(PiArd_reset, pigpio.OUTPUT)
+pi.write(PiArd_reset, 0) # ard resets when reset pin is LOW
+time.sleep(0.1)
+pi.write(PiArd_reset, 1) # back HIGH so it stops resetting
+
 # query parameter input from user
 print('********** getting user input **********')
 test_answer=int(input("test (0) or exp (1) ?"))
@@ -30,30 +48,17 @@ elif test_answer==1:
 print('********************** input complete, starting session **********************')
 
 # hard-coded recording parameters
-minimum_entry_time = 60 # seconds to wait until starting to detect exit
+minimum_entry_time = 6 # seconds to wait until starting to detect exit
 chuck_lines = 2  # chuck first weight reads for stability
-nest_timeout = 100  # timeout in nest after exiting maze in seconds
+nest_timeout = 10  # timeout in nest after exiting maze in seconds
 heavy = 35 
 
 # document data folder
 os.chdir("/home/pi/Documents/Data/")
-# init pigpio
-pi = pigpio.pi()
-# set pin inputs from arduino
-ard_pi_BB1 = 15  # reports BB1low
-ard_pi_BB2 = 18  # reports BB2low
-pi_ard_door1 = 23 
-pi_ard_door2 = 24 
-PiArd_reset = 14
-pi.set_mode(pi_ard_door1, pigpio.OUTPUT)
-pi.set_mode(pi_ard_door2, pigpio.OUTPUT)
-pi.set_mode(ard_pi_BB1, pigpio.INPUT)
-pi.set_mode(ard_pi_BB2, pigpio.INPUT)
-pi.set_mode(PiArd_reset, pigpio.OUTPUT)
 
 # initialize serial port for usb RFID
 serRFID = serial.Serial()
-serRFID.port = "/dev/ttyUSB0" # user may need to change this
+serRFID.port = "/dev/ttyUSB1" # user may need to change this
 serRFID.baudrate = 9600
 serRFID.timeout = 100  # timeout in seconds when using readline()
 serRFID.open()
@@ -64,7 +69,7 @@ serRFID.close()
 
 # initialize serial port for usb OpenScale
 ser = serial.Serial()
-ser.port = "/dev/ttyUSB1" # user may need to change this
+ser.port = "/dev/ttyUSB0" # user may need to change this
 ser.baudrate = 19200
 ser.timeout = 100
 # specify timeout when using readline()
@@ -76,10 +81,6 @@ for x in range(10):
 if ser.is_open == True:
     print("\nScale ok. Configuration:\n")
     print(ser, "\n")  # print serial parameters
-
-pi.write(PiArd_reset, 0)  # ard resets when reset pin is LOW
-time.sleep(0.1)
-pi.write(PiArd_reset, 1)  # back HIGH so it stops resetting
 
 # animal timers
 animal_timer = animal_list.copy()
@@ -198,14 +199,13 @@ def read_scale():
     return w
 
 class SaveData:
-     def append_weight(
+    def append_weight(
         self,
         weight_data_mean,
         weight_data_median,
         weight_data_mode,
         weight_data_max_mode,
-        animaltag,
-    ):
+        animaltag,):
         """
         Function used to save weight data to a .csv file
         """
@@ -236,9 +236,7 @@ class SaveData:
             )
             print("weight file appended")
 
-    def append_event(
-        self, rotation, food_time, event_type, animaltag, hardware_time
-    ): 
+    def append_event(self, rotation, food_time, event_type, animaltag, hardware_time): 
         """
         Function used to save event data to a .csv file
         """
