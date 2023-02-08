@@ -4,7 +4,7 @@ Servo servo1;     // Servo 1 = door1
 Servo servo2;     // Servo 2 = door2
                                              
 //Constants
-const int slowness = 150;   //slowness factor, us wait between 1deg movements, change to set door speed
+const int slowness = 8000;   //slowness factor, us wait between 1deg movements, change to set door speed
 //beam breaks
 const int pResistor1 = A0;//BB1 safety
 const int pResistor2 = A1;//BB2 return
@@ -84,7 +84,7 @@ void loop()
 //    Serial.println(photo_value2);  
 
     //output BB detectors to Pi
-    if (photo_value1<INIT_READ1*0.8) //BB1 safety - inverted here
+    if (photo_value1<INIT_READ1*0.85) //BB1 safety - inverted here
     {
         digitalWrite(ard_pi_BB1, LOW);
     }  
@@ -93,7 +93,7 @@ void loop()
         digitalWrite(ard_pi_BB1, HIGH);
     }
 
-    if (photo_value2<INIT_READ2*0.7) //BB2 exit
+    if (photo_value2<INIT_READ2*0.9) //BB2 exit
     {
         digitalWrite(ard_pi_BB2, HIGH);
     }  
