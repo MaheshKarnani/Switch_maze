@@ -55,12 +55,12 @@ void setup()
   INIT_READ1 = analogRead(pResistor1);//calibrate top of door detector when door1 open
   delay(200);
   servo1.write(CLOSE_DOOR1); 
-  delay(100);
+  delay(1000);
   servo2.attach(servoPin2);
   servo2.write(OPEN_DOOR2);
-  delay(100);
+  delay(1000);
   servo2.write(CLOSE_DOOR2);
-  delay(100);
+  delay(1000);
   
   digitalWrite(ard_pi_BB1, LOW);//communication to Pi
   digitalWrite(ard_pi_BB2, LOW);
