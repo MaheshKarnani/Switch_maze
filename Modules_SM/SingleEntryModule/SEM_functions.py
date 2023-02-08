@@ -1,4 +1,4 @@
-# Switch_maze SEM module
+# Switch_maze SEM
 import serial
 import time
 import pigpio

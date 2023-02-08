@@ -2,7 +2,7 @@
 from SEM_functions import *
 """
 Execution loop for single entry module demo.
-Opens, detects one animal in module and reads its RFID, if animal hasn't exited in 100s closes safely, 
+Opens, detects one animal in module and reads its RFID, if animal hasn't exited in nest_timeout, closes safely, 
 weighs animal, passes to other side, waits minimum_entry_time, then allows return.
 Changes typically not recommended here.
 This is an example.
