@@ -2,7 +2,7 @@
 from Running_wheel_functions import *
 """
 Execution loop for run logging and locking wheel.
-Wheel is on for 60s after run is initiated and then off for 60s.
+Wheel is on for 5000ms after run is initiated and then off for 6s (change from functions).
 Changes typically not recommended here.
 This is an example.
 """

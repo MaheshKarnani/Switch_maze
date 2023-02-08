@@ -1,4 +1,4 @@
-# Switch_maze
+# Switch_maze lick sensor functions
 import serial
 import time
 import pigpio
@@ -9,7 +9,7 @@ import datetime
 import numpy as np
 """
 Functions and parameters for switch maze standard operation.
-Change e.g., cohort tags and water amount here.
+Change e.g., water amount here.
 """
 # hard-coded recording parameters
 water_time = 0.1  # seconds water dispensed when animal licks spout 0.1=20ul standard

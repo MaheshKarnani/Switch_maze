@@ -1,4 +1,4 @@
-# Switch_maze
+# Switch_maze running wheel functions
 import serial
 import time
 import pigpio
@@ -9,7 +9,7 @@ import datetime
 import numpy as np
 """
 Functions and parameters for switch maze standard operation.
-Change e.g., cohort tags and water amount here.
+Change e.g., running time and off time here.
 """
 # hard-coded recording parameters
 off_time = 6 # seconds run wheel clamped after time is up
