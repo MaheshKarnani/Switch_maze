@@ -18,10 +18,10 @@ const int ard_pi_BB1 = 4;//reports BB1low to Pi
 const int ard_pi_BB2 = 5;//reports BB2low to Pi
 
 //door angles: determine empirically
-const int CLOSE_DOOR1 = 179;//Angle of 150 degrees -> door is closed
-const int OPEN_DOOR1 = 76;//Angle of 47 degrees -> door is opened
-const int CLOSE_DOOR2 = 179;//Angle of 155 degrees -> door is closed
-const int OPEN_DOOR2 = 45;//
+const int CLOSE_DOOR1 = 179;//Angle of 179 degrees -> door is closed
+const int OPEN_DOOR1 = 76;//Angle of 76 degrees -> door is opened
+const int CLOSE_DOOR2 = 179;//Angle of 179 degrees -> door is closed
+const int OPEN_DOOR2 = 45;//Angle of 45 degrees -> door is opened
 
 //motor inputs from Pi
 const int pi_ard_door1 = 2;//open door1
