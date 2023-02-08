@@ -41,7 +41,7 @@ long start = millis();
   
 void setup()
 {
-  Serial.begin(9600);//setup serial
+//  Serial.begin(9600);//setup serial
   pinMode(pResistor1, INPUT);//Set photoResistor - A0 pin as an input 
   pinMode(pResistor2, INPUT);
   pinMode(ard_pi_BB1, OUTPUT);//output reports to Pi
@@ -67,10 +67,10 @@ void setup()
   
   INIT_READ2 = analogRead(pResistor2);// calibrate exit beam-break
 
-  Serial.print("INIT_READ1 ");  //show beam break values for trouble shooting if serial monitor is on
-  Serial.println(INIT_READ1);  
-  Serial.print("INIT_READ2 ");  
-  Serial.println(INIT_READ2); 
+//  Serial.print("INIT_READ1 ");  //show beam break values for trouble shooting if serial monitor is on
+//  Serial.println(INIT_READ1);  
+//  Serial.print("INIT_READ2 ");  
+//  Serial.println(INIT_READ2); 
 }
 
 void loop()
@@ -78,10 +78,10 @@ void loop()
     photo_value1 = analogRead(pResistor1); //read beam breaks
     photo_value2 = analogRead(pResistor2);
 
-     Serial.print("photo_value1 ");  
-     Serial.println(photo_value1);  
-     Serial.print("photo_value2 ");  
-     Serial.println(photo_value2);  
+//    Serial.print("photo_value1 ");  
+//    Serial.println(photo_value1);  
+//    Serial.print("photo_value2 ");  
+//    Serial.println(photo_value2);  
 
     //output BB detectors to Pi
     if (photo_value1<INIT_READ1*0.8) //BB1 safety - inverted here
