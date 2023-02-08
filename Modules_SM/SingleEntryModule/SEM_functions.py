@@ -49,10 +49,10 @@ print('********************** input complete, starting session *****************
 
 # hard-coded recording parameters
 minimum_entry_time = 6 # seconds to wait until starting to detect exit
-chuck_lines = 2  # chuck first weight reads for stability
 nest_timeout = 10  # timeout in nest after exiting maze in seconds
 heavy = 35 #g limit too heavy = more than one animal on scale 
 light = 10 #g limit too light = animal incompletely on scale
+chuck_lines = 2  # chuck first weight reads for stability
 
 # document data folder
 os.chdir("/home/pi/Documents/Data/")
