@@ -30,7 +30,7 @@ const int ard_pi_3 = 40;//reports BB3low to Pi
 const int ard_pi_4 = 41;//reports BB4low to Pi
 const int ard_pi_5 = 42;//reports BB5high to Pi
 const int ard_pi_lick = 43;//reports capacitive sensor to Pi
-const int lick_led = 44;//reports capacitive sensor to user
+const int lick_led = 32;//reports capacitive sensor to user
 //door angles: determine empirically
 const int CLOSE_DOOR1 = 150;//Angle of 150 degrees -> door is closed
 const int OPEN_DOOR1 = 47;//Angle of 47 degrees -> door is opened
@@ -46,7 +46,7 @@ const int pi_ard_1 = 22;//open door1
 const int pi_ard_2 = 23;//open door2
 const int pi_ard_3 = 24;//open door3
 const int pi_ard_4ow = 25;//release running wheel
-const int pi_ard_calibrate_lick = 27;//release
+const int pi_ard_calibrate_lick = 26;//release
 
 //Variables
 int photo_value1;//Store value from photoresistor (0-1023)
