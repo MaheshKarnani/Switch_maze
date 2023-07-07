@@ -52,7 +52,7 @@ minimum_entry_time = 6 # seconds to wait until starting to detect exit
 nest_timeout = 10  # timeout in nest after exiting maze in seconds
 heavy = 35 #g limit too heavy = more than one animal on scale 
 light = 10 #g limit too light = animal incompletely on scale
-chuck_lines = 2  # chuck first weight reads for stability
+chuck_lines = 5  # chuck first weight reads for stability
 
 # document data folder
 os.chdir("/home/pi/Documents/Data/")
@@ -71,9 +71,10 @@ serRFID.close()
 # initialize serial port for usb OpenScale
 ser = serial.Serial()
 ser.port = "/dev/ttyUSB0" # user may need to change this
-ser.baudrate = 19200
+ser.baudrate = 9600 # can be changed for speed but must match arduino
 ser.timeout = 100
 # specify timeout when using readline()
+ser.close()
 ser.open()
 ser.flush()
 for x in range(10):
