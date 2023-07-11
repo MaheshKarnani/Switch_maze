@@ -8,7 +8,7 @@ while True:
         GPIO.output(pi_ard_1, True)  # open door1
         MODE = 2
     # animal on scale
-    if MODE == 2 and GPIO.input(ard_pi_2):  # and GPIO.input(ard_pi_1) #top detector off
+    if MODE == 2 and GPIO.input(ard_pi_2):  # BB2 broken
         print("\nMODE 2\n")
         w = read_scale()
         if w > 10 and w < heavy and GPIO.input(ard_pi_1):
@@ -56,8 +56,3 @@ while True:
         identified=identified+1
         text_trap = io.StringIO()
         sys.stdout = text_trap # remember to restore stdout function with sys.stdout=sys.__stdout__
-        
-#         yag = yagmail.SMTP('switchmazebot2000@gmail.com', '123Switchmazebot2000')
-#         contents = ["cohort identification complete on Switchmaze"]
-#         yag.send('m.m.karnani@vu.nl', 'finished', contents)
-        

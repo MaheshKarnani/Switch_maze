@@ -46,8 +46,7 @@ while True:
                     w > 10
                     and w < heavy
                     and pi.read(ard_pi_1)
-                    and int(round(time.time()))
-                    - animal_timer[animal_list.index(animaltag)]
+                    and int(round(time.time())) - animal_timer[animal_list.index(animaltag)]
                     > nest_timeout
                 ):
                     pi.write(pi_ard_1, 0)  # close door1

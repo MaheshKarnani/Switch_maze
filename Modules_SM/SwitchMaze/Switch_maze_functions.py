@@ -60,7 +60,7 @@ elif FED_answer == "R":
     print('food on Right')
 print('********************** input complete, starting session **********************')
     
-# hard-coded recording parameters
+# change these recording parameters as needed
 water_time = 0.1  # seconds water dispensed when animal licks spout 0.1=20ul standard
 run_time = 120  # running wheel availability in seconds 120s standard
 chuck_lines = 2  # chuck first weight reads for stability
@@ -68,7 +68,7 @@ nest_timeout = 100  # timeout in nest after exiting maze in seconds 100s standar
 heavy = 35  # heavy (more than one mouse) limit in g, 40g standard
 exit_wait = 1  # safety timer in seconds so outgoing is not trapped on exit, decrease when they learn to use
 
-# document data folder
+# data folder
 os.chdir("/home/pi/Documents/Data/")
 # init pigpio
 pi = pigpio.pi()
@@ -86,7 +86,7 @@ serRFID.close()
 # initialize serial port for usb OpenScale
 ser = serial.Serial()
 ser.port = "/dev/ttyUSB0" # user may need to change this
-ser.baudrate = 19200
+ser.baudrate = 9600
 ser.timeout = 100
 # specify timeout when using readline()
 ser.open()
