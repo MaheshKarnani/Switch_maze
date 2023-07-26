@@ -24,7 +24,7 @@ pi = pigpio.pi()
 # initialize serial port for usb OpenScale
 ser = serial.Serial()
 ser.port = "/dev/ttyUSB0" # user may need to change this
-ser.baudrate = 19200
+ser.baudrate = 9600
 ser.timeout = 100
 # specify timeout when using readline()
 ser.open()
