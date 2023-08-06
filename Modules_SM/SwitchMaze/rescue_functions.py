@@ -39,7 +39,7 @@ if ser.is_open == True:
 # set pin inputs from arduino
 ard_pi_1 = 13  # reports BB1high
 ard_pi_2 = 19  # reports BB2low
-ard_pi_5 = 20  # reports BB5low
+ard_pi_5 = 21  # reports BB5low
 
 # set pins to and from FED3
 Food_retrieval = 15  # BNC output from FED3
