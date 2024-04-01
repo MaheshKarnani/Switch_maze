@@ -263,7 +263,7 @@ def acquire_weight(animaltag):
             animaltag,
         )
         reference_weight=animal_reference_weights[animal_list.index(animaltag)] 
-        if weight_data_mean<0.85*reference_weight  # animal has lost 15% body weight -- send an email to user  
+        if weight_data_mean<0.85*reference_weight:  # animal has lost 15% body weight -- send an email to user  
             print("a mouse has dropped below 85 percent of its reference weight, take action:")
             print(animaltag)
             try:
